@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 import requests
 
+from jobs_classes import Vacancy
+
 
 class Engine(ABC):
     @abstractmethod
@@ -62,3 +64,26 @@ class HeadHunter(Engine):
         if unformatted_data['snippet']['responsibility'] is not None:
             str_description += '\n' + unformatted_data['snippet']['responsibility']
         return str_description.replace('<highlighttext>', '').replace('</highlighttext>', '')
+
+    def get_vacancy_list(self):
+        vacancy_list = []
+        page = 0
+        print('Ищу вакансии по вашему запросу. Пожалуйста, подождите...')
+        while True:
+            params = {
+                'text': self.__search,
+                'experience': self.__experience,
+                'page': page,
+                'per_page': 100,
+                'area': '113'
+            }
+            data = self.get_request(params=params)
+            print('.', end='')
+            for item in data.get('items'):
+                vacancy_list.append(Vacancy(data=self.get_formatted_data(unformatted_data=item)))
+            if data.get('pages') - page <= 1:
+                print(f'\nКоличество найденных вакансий: {len(vacancy_list)}')
+                break
+            else:
+                page += 1
+        return vacancy_list
