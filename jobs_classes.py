@@ -6,15 +6,19 @@ class Vacancy:
     Attrs:
         name (str): название вакансии
         url (str): ссылка на вакансию
+        published_at (str): дата публикации вакансии
         description (str): описание вакансии
         salary (int): заработная плата
         city (str): город
         employer (str): компания
 
     """
+    __slots__ = ('__name', '__url', '__published_at', '__description', '__salary', '__city', '__employer')
+
     def __init__(self, data: dict):
         self.__name = data['name']
         self.__url = data['url']
+        self.__published_at = data['published_at']
         self.__description = data['description']
         self.__salary = data['salary']
         self.__city = data['city']
@@ -29,6 +33,11 @@ class Vacancy:
     def url(self):
         """Геттер. Возвращает ссылку на вакансию"""
         return self.__url
+
+    @property
+    def published_at(self):
+        """Геттер. Возвращает дату публикации вакансии"""
+        return self.__published_at
 
     @property
     def description(self):

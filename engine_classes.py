@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import date
 
 import requests
 
@@ -16,10 +17,10 @@ class Engine(ABC):
 
 
 class HeadHunter(Engine):
-    def __init__(self, search: str, no_experience) -> None:
+    def __init__(self, search: str, no_experience: str) -> None:
         self.__search = search
         self.__url = 'https://api.hh.ru/vacancies/'
-        if no_experience == 'y':
+        if no_experience == '1':
             self.__experience = 'noExperience'
         else:
             self.__experience = None
@@ -43,6 +44,7 @@ class HeadHunter(Engine):
         about_vacancy = {
             'name': unformatted_data['name'],
             'url': unformatted_data['alternate_url'],
+            'published_at': self.get_formatted_date(date_str=unformatted_data['published_at']),
             'description': self.get_formatted_description(unformatted_data=unformatted_data),
             'salary': self.get_formatted_salary(salary=unformatted_data['salary']),
             'city': unformatted_data['area']['name'],
@@ -65,13 +67,18 @@ class HeadHunter(Engine):
             str_description += '\n' + unformatted_data['snippet']['responsibility']
         return str_description.replace('<highlighttext>', '').replace('</highlighttext>', '')
 
+    @staticmethod
+    def get_formatted_date(date_str):
+        date_obj = date_str.split('T')[0]
+        return date.fromisoformat(date_obj)
+
     def get_vacancy_list(self):
         vacancy_list = []
         page = 0
         print('Ищу вакансии по вашему запросу. Пожалуйста, подождите...')
         while True:
             params = {
-                'text': self.__search,
+                'text': f'NAME:{self.__search}',
                 'experience': self.__experience,
                 'page': page,
                 'per_page': 100,
